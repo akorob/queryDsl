@@ -1,16 +1,96 @@
 apply plugin: 'java'
 apply plugin: 'application'
+apply plugin: 'idea'
 
-mainClassName = 'hello.HelloWorld'
+mainClassName = 'hello.HelloCat'
+
+configurations {
+    hibernateJpaModelGenTool {
+        description = "Dependencies for running the Hibernate JPA Metamodel Generator AnnotationProcessor tool"
+    }
+    queryDslJpaModelGenTool {
+        description = "Dependencies for running the QueryDSL JPA Metamodel Generator AnnotationProcessor tool"
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src/generated'
+        }
+    }
+}
+
+ext.genDir = new File("${projectDir}/src/generated")
+
 
 repositories {
     mavenCentral()
 }
+
+
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
     compile "joda-time:joda-time:2.2"
-    testCompile "junit:junit:4.12"
+    compile "com.mysema.querydsl:querydsl-jpa:3.6.3"
+    //compile "com.mysema.querydsl:querydsl-apt:3.6.3:jpa" // Magic happens here
+    compile "org.hibernate:hibernate-entitymanager:4.3.5.Final" 
+    compile 'com.h2database:h2:1.4.187'
+
+    queryDslJpaModelGenTool "com.mysema.querydsl:querydsl-apt:3.6.3"
+    hibernateJpaModelGenTool "org.hibernate:hibernate-jpamodelgen:4.3.11.Final"
+}
+
+task hibernateProcessAnnotations(type: JavaCompile) {
+    source = sourceSets.main.java
+    classpath = compileJava.classpath + configurations.hibernateJpaModelGenTool
+    destinationDir = genDir
+    options.encoding = 'utf-8'
+    options.compilerArgs = [
+            "-proc:only"
+    ]
+}
+
+hibernateProcessAnnotations.doFirst {
+    genDir.mkdirs()
+    //doLog "Generating hibernate static metamodel..."
+}
+
+task querydslProcessAnnotations(type: JavaCompile) {
+    source = sourceSets.main.java
+    classpath = compileJava.classpath + configurations.queryDslJpaModelGenTool
+    destinationDir = genDir
+    options.encoding = 'utf-8'
+    options.compilerArgs = [
+            "-proc:only",
+            "-processor", "com.mysema.query.apt.jpa.JPAAnnotationProcessor"
+    ]
+}
+
+querydslProcessAnnotations.doFirst {
+    if (genDir.exists()) {
+     //   doLog "Deleting generated QueryDSL static metamodel..."
+        genDir.deleteDir();
+    }
+  //  doLog "Generating QueryDSL static metamodel..."
+    genDir.mkdirs()
+}
+
+
+clean.doLast {
+    if (genDir.exists() && genDir.isDirectory()) {
+       // doLog "Deleting generated QueryDSL static metamodel..."
+        genDir.deleteDir();
+    }
+}
+
+compileJava.dependsOn querydslProcessAnnotations
+compileJava.dependsOn hibernateProcessAnnotations
+hibernateProcessAnnotations.mustRunAfter querydslProcessAnnotations
+
+idea.module {
+    sourceDirs += file("${projectDir}/src/generated")
 }
