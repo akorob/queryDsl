@@ -11,42 +11,42 @@ import com.mysema.query.types.path.PathInits;
 
 
 /**
- * QCat is a Querydsl query type for Cat
+ * QOwner is a Querydsl query type for Owner
  */
 @Generated("com.mysema.query.codegen.EntitySerializer")
-public class QCat extends EntityPathBase<Cat> {
+public class QOwner extends EntityPathBase<Owner> {
 
-    private static final long serialVersionUID = 1195528346L;
+    private static final long serialVersionUID = -2136759689L;
 
     private static final PathInits INITS = PathInits.DIRECT2;
 
-    public static final QCat cat = new QCat("cat");
+    public static final QOwner owner = new QOwner("owner");
+
+    public final QCat cat;
 
     public final NumberPath<Integer> id = createNumber("id", Integer.class);
 
     public final StringPath name = createString("name");
 
-    public final QOwner owner;
-
-    public QCat(String variable) {
-        this(Cat.class, forVariable(variable), INITS);
+    public QOwner(String variable) {
+        this(Owner.class, forVariable(variable), INITS);
     }
 
-    public QCat(Path<? extends Cat> path) {
+    public QOwner(Path<? extends Owner> path) {
         this(path.getType(), path.getMetadata(), path.getMetadata().isRoot() ? INITS : PathInits.DEFAULT);
     }
 
-    public QCat(PathMetadata<?> metadata) {
+    public QOwner(PathMetadata<?> metadata) {
         this(metadata, metadata.isRoot() ? INITS : PathInits.DEFAULT);
     }
 
-    public QCat(PathMetadata<?> metadata, PathInits inits) {
-        this(Cat.class, metadata, inits);
+    public QOwner(PathMetadata<?> metadata, PathInits inits) {
+        this(Owner.class, metadata, inits);
     }
 
-    public QCat(Class<? extends Cat> type, PathMetadata<?> metadata, PathInits inits) {
+    public QOwner(Class<? extends Owner> type, PathMetadata<?> metadata, PathInits inits) {
         super(type, metadata, inits);
-        this.owner = inits.isInitialized("owner") ? new QOwner(forProperty("owner"), inits.get("owner")) : null;
+        this.cat = inits.isInitialized("cat") ? new QCat(forProperty("cat"), inits.get("cat")) : null;
     }
 
 }

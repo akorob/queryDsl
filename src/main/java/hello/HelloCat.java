@@ -23,43 +23,27 @@ public class HelloCat {
     //test gradle dependency on Joda time
     LocalTime currentTime = new LocalTime();
     System.out.println("The current local time is: " + currentTime);
-
-
-    Greeter greeter = new Greeter();
-    System.out.println(greeter.sayMau());
+    System.out.println("Maaau!");
 
 
     EntityManagerFactory emf = Persistence.createEntityManagerFactory("unit");
-
     EntityManager entityManager = emf.createEntityManager();
-
-    EntityTransaction transaction = entityManager.getTransaction();
-    transaction.begin();
-    entityManager.persist(new Cat("Smith"));
-    entityManager.persist(new Cat("Gates"));
-    entityManager.persist(new Cat("Orlov"));
-    entityManager.persist(new Cat("Smirnov"));
-    entityManager.persist(new Cat("Orlov"));
-
-    entityManager.flush();
-    transaction.commit();
+    DbHelper.createTestDb(entityManager);
 
     JPAQuery query = new JPAQuery(entityManager);
 
-    List<String> uniqueUserNames = query.from(cat)
-            .where(cat.name.like("%ov"))
+    List<String> catNames = query.from(cat)
+            .where(cat.name.like("%ge%"))
             .groupBy(cat.name)
             .list(cat.name);
 
-    System.out.println("Unique names:");
-    for (String uniqueUserName : uniqueUserNames) {
-      System.out.println(uniqueUserName);
+    System.out.println("##############################Unique names:  ##################################");
+    for (String catName : catNames) {
+      System.out.println(catName);
     }
 
     entityManager.close();
     emf.close();
-
-
 
   }
 }

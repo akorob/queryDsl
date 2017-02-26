@@ -1,9 +1,6 @@
 package hello;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 public class Cat {
@@ -11,14 +8,17 @@ public class Cat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-
     private String name;
+
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "cat", cascade = CascadeType.ALL)
+    private Owner owner;
 
     public Cat() {
     }
 
-    public Cat(String name) {
+    public Cat(String name, Owner owner) {
         this.name = name;
+        this.owner = owner;
     }
 
     public int getId() {
@@ -35,5 +35,13 @@ public class Cat {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Owner getOwner() {
+        return owner;
+    }
+
+    public void setOwner(Owner owner) {
+        this.owner = owner;
     }
 }

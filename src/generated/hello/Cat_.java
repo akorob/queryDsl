@@ -8,6 +8,7 @@ import javax.persistence.metamodel.StaticMetamodel;
 @StaticMetamodel(Cat.class)
 public abstract class Cat_ {
 
+	public static volatile SingularAttribute<Cat, Owner> owner;
 	public static volatile SingularAttribute<Cat, String> name;
 	public static volatile SingularAttribute<Cat, Integer> id;
 
