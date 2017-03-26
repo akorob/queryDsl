@@ -5,12 +5,14 @@
         <class>hello.Cat</class>
         <class>hello.Owner</class>
         <properties>
-            <property name="hibernate.connection.url" value="jdbc:h2:mem:"/>
+            <property name="hibernate.connection.url" value="jdbc:h2:mem:;TRACE_LEVEL_SYSTEM_OUT=2"/>
             <property name="connection.jdbc.driver" value="org.h2.Driver"/>
             <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
             <property name="javax.persistence.jdbc.user" value="sa" />
             <property name="javax.persistence.jdbc.password" value="" />
-            <property name="hibernate.hbm2ddl.auto" value="create" />
+            <!--http://stackoverflow.com/questions/23858953/grails-2-4-and-hibernate4-errors-with-run-app/31257468#31257468-->
+            <property name="hibernate.hbm2ddl.auto" value="update" />
+            <property name="show_sql" value="true"/>
         </properties>
     </persistence-unit>
 </persistence>

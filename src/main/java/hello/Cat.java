@@ -1,8 +1,12 @@
 package hello;
 
 import javax.persistence.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Entity
+@Table(name = "cat")
 public class Cat {
 
     @Id
@@ -10,15 +14,15 @@ public class Cat {
     private int id;
     private String name;
 
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "cat", cascade = CascadeType.ALL)
-    private Owner owner;
+    @OneToMany(mappedBy="cat", cascade = CascadeType.ALL)
+    private List<Owner> owners;
 
     public Cat() {
     }
 
-    public Cat(String name, Owner owner) {
+    public Cat(String name, List<Owner> owners) {
         this.name = name;
-        this.owner = owner;
+        this.owners = owners;
     }
 
     public int getId() {
@@ -37,11 +41,22 @@ public class Cat {
         this.name = name;
     }
 
-    public Owner getOwner() {
-        return owner;
+    public List<Owner> getOwners() {
+        return owners;
     }
 
-    public void setOwner(Owner owner) {
-        this.owner = owner;
+    public void setOwners(List<Owner> owners) {
+        this.owners = owners;
+    }
+
+    @Override
+    public String toString() {
+        return "Cat{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", owners=" + (owners == null ? null : String.join(", ", owners.stream()
+                .map(object -> Objects.toString(object, null))
+                .collect(Collectors.toList()))) +
+                '}';
     }
 }

@@ -46,7 +46,7 @@ public class QOwner extends EntityPathBase<Owner> {
 
     public QOwner(Class<? extends Owner> type, PathMetadata<?> metadata, PathInits inits) {
         super(type, metadata, inits);
-        this.cat = inits.isInitialized("cat") ? new QCat(forProperty("cat"), inits.get("cat")) : null;
+        this.cat = inits.isInitialized("cat") ? new QCat(forProperty("cat")) : null;
     }
 
 }

@@ -3,14 +3,17 @@ package hello;
 import javax.persistence.*;
 
 @Entity
+@Table(name = "owner")
 public class Owner {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cat")
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="cat")
     private Cat cat;
+
+
     private String name;
 
     public Owner() {
@@ -42,5 +45,13 @@ public class Owner {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "Owner{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
     }
 }

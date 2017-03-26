@@ -1,7 +1,5 @@
 package hello;
 
-import org.joda.time.LocalTime;
-
 import com.mysema.query.jpa.impl.JPAQuery;
 import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
@@ -16,13 +14,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static hello.QCat.cat;
-
 public class HelloCat {
   public static void main(String[] args) {
-    //test gradle dependency on Joda time
-    LocalTime currentTime = new LocalTime();
-    System.out.println("The current local time is: " + currentTime);
+
     System.out.println("Maaau!");
 
 
@@ -30,20 +24,38 @@ public class HelloCat {
     EntityManager entityManager = emf.createEntityManager();
     DbHelper.createTestDb(entityManager);
 
-    JPAQuery query = new JPAQuery(entityManager);
+    likeExample(entityManager);
+    nestedObjFieldLikeExample(entityManager);
 
-    List<String> catNames = query.from(cat)
-            .where(cat.name.like("%ge%"))
-            .groupBy(cat.name)
-            .list(cat.name);
-
-    System.out.println("##############################Unique names:  ##################################");
-    for (String catName : catNames) {
-      System.out.println(catName);
-    }
 
     entityManager.close();
     emf.close();
-
   }
+
+  private static void likeExample (EntityManager em){
+    System.out.println("############################## Cat names like: %ge%");
+    JPAQuery queryFactory = new JPAQuery(em);
+    QCat cat = QCat.cat;
+    List<String> catNames = queryFactory.from(cat)
+            .where(cat.name.like("%ge%"))
+            .groupBy(cat.name)
+            .list(cat.name);
+    catNames.forEach(System.out::println);
+  }
+
+  private static void nestedObjFieldLikeExample (EntityManager em){
+    System.out.println("############################## Owner names like: %ill%");
+    JPAQuery queryFactory = new JPAQuery(em);
+    QCat cat = QCat.cat;
+    QOwner owner = QOwner.owner;
+    //QCat cat = new QCat("myCat");
+    //QOwner owner = new QOwner("myOwner");
+    List<Cat> catNames = queryFactory.from(cat)
+            .leftJoin(cat.owners, owner)
+            .on(owner.name.eq("Bill"))
+            .list(cat);
+    catNames.forEach(System.out::println);
+  }
+
+  //http://sqlfiddle.com/#!9/b5f881d/1/0
 }
