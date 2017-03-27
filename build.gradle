@@ -1,16 +1,11 @@
 apply plugin: 'java'
 apply plugin: 'application'
-apply plugin: 'idea'
 
 mainClassName = 'hello.HelloCat'
 
 configurations {
-    hibernateJpaModelGenTool {
-        description = "Dependencies for running the Hibernate JPA Metamodel Generator AnnotationProcessor tool"
-    }
-    queryDslJpaModelGenTool {
-        description = "Dependencies for running the QueryDSL JPA Metamodel Generator AnnotationProcessor tool"
-    }
+    hibernateJpa
+    queryDslJpa
 }
 
 sourceSets {
@@ -28,24 +23,19 @@ repositories {
     mavenCentral()
 }
 
-
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
 dependencies {
     compile "com.mysema.querydsl:querydsl-jpa:3.6.3"
-    //compile "com.mysema.querydsl:querydsl-apt:3.6.3:jpa" // Magic happens here
+    //compile "com.mysema.querydsl:querydsl-apt:3.6.3:jpa"
     compile "org.hibernate:hibernate-entitymanager:4.3.5.Final" 
     compile 'com.h2database:h2:1.4.187'
     compile "org.slf4j:slf4j-simple:1.7.9" // to avoid SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
-    queryDslJpaModelGenTool "com.mysema.querydsl:querydsl-apt:3.6.3"
-    hibernateJpaModelGenTool "org.hibernate:hibernate-jpamodelgen:4.3.11.Final"
+    queryDslJpa "com.mysema.querydsl:querydsl-apt:3.6.3"
+    hibernateJpa "org.hibernate:hibernate-jpamodelgen:4.3.11.Final"
 }
 
-task hibernateProcessAnnotations(type: JavaCompile) {
+task generateJpaMetamodel(type: JavaCompile) {
     source = sourceSets.main.java
-    classpath = compileJava.classpath + configurations.hibernateJpaModelGenTool
+    classpath = compileJava.classpath + configurations.hibernateJpa
     destinationDir = genDir
     options.encoding = 'utf-8'
     options.compilerArgs = [
@@ -53,14 +43,13 @@ task hibernateProcessAnnotations(type: JavaCompile) {
     ]
 }
 
-hibernateProcessAnnotations.doFirst {
+/*generateJpaMetamodel.doFirst {
     genDir.mkdirs()
-    //doLog "Generating hibernate static metamodel..."
-}
+}*/
 
-task querydslProcessAnnotations(type: JavaCompile) {
+task generateQueryDSLMetamodel(type: JavaCompile) {
     source = sourceSets.main.java
-    classpath = compileJava.classpath + configurations.queryDslJpaModelGenTool
+    classpath = compileJava.classpath + configurations.queryDslJpa
     destinationDir = genDir
     options.encoding = 'utf-8'
     options.compilerArgs = [
@@ -69,27 +58,21 @@ task querydslProcessAnnotations(type: JavaCompile) {
     ]
 }
 
-querydslProcessAnnotations.doFirst {
+generateQueryDSLMetamodel.doFirst {
     if (genDir.exists()) {
-        //doLog "Deleting generated QueryDSL static metamodel..."
         genDir.deleteDir();
     }
-    //doLog "Generating QueryDSL static metamodel..."
     genDir.mkdirs()
 }
 
 
 clean.doLast {
     if (genDir.exists() && genDir.isDirectory()) {
-        //doLog "Deleting generated QueryDSL static metamodel..."
         genDir.deleteDir();
     }
 }
 
-compileJava.dependsOn querydslProcessAnnotations
-compileJava.dependsOn hibernateProcessAnnotations
-hibernateProcessAnnotations.mustRunAfter querydslProcessAnnotations
+compileJava.dependsOn generateQueryDSLMetamodel
+compileJava.dependsOn generateJpaMetamodel
+generateJpaMetamodel.mustRunAfter generateQueryDSLMetamodel
 
-idea.module {
-    sourceDirs += file("${projectDir}/src/generated")
-}
