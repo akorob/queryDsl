@@ -6,10 +6,8 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
-import javax.persistence.Persistence;
+import javax.persistence.*;
+import javax.persistence.criteria.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +16,7 @@ public class HelloCat {
   public static void main(String[] args) {
 
     System.out.println("Maaau!");
-
+    //http://sqlfiddle.com/#!9/8d1a92/7/0
 
     EntityManagerFactory emf = Persistence.createEntityManagerFactory("unit");
     EntityManager entityManager = emf.createEntityManager();
@@ -44,18 +42,27 @@ public class HelloCat {
   }
 
   private static void nestedObjFieldLikeExample (EntityManager em){
-    System.out.println("############################## Owner names like: %ill%");
+    System.out.println("############################## Owner names equals(QueryDsl): Bill");
+
     JPAQuery queryFactory = new JPAQuery(em);
     QCat cat = QCat.cat;
     QOwner owner = QOwner.owner;
-    //QCat cat = new QCat("myCat");
-    //QOwner owner = new QOwner("myOwner");
     List<Cat> catNames = queryFactory.from(cat)
-            .leftJoin(cat.owners, owner)
-            .on(owner.name.eq("Bill"))
+            .leftJoin(cat.owner, owner)
+            .where(owner.name.eq("Bill"))
             .list(cat);
     catNames.forEach(System.out::println);
+
+    System.out.println("############################## Owner names equals(CriteriaQuery): Bill");
+    CriteriaBuilder cb = em.getCriteriaBuilder();
+    CriteriaQuery<Cat> criteriaQuery = cb.createQuery(Cat.class);
+    Root<Cat> catQ = criteriaQuery.from(Cat.class);
+    Join<Cat, Owner> ownerQ = catQ.join(Cat_.owner);
+    criteriaQuery.where(cb.equal(ownerQ.get(Owner_.name), "Bill"));
+    Query query = em.createQuery(criteriaQuery);
+    List<Cat> catNamesQ = query.getResultList();
+    catNamesQ.forEach(System.out::println);
   }
 
-  //http://sqlfiddle.com/#!9/b5f881d/1/0
+
 }

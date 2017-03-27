@@ -14,15 +14,15 @@ public class Cat {
     private int id;
     private String name;
 
-    @OneToMany(mappedBy="cat", cascade = CascadeType.ALL)
-    private List<Owner> owners;
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="owner")
+    private Owner owner;
 
     public Cat() {
     }
 
-    public Cat(String name, List<Owner> owners) {
+    public Cat(String name) {
         this.name = name;
-        this.owners = owners;
     }
 
     public int getId() {
@@ -41,12 +41,12 @@ public class Cat {
         this.name = name;
     }
 
-    public List<Owner> getOwners() {
-        return owners;
+    public Owner getOwner() {
+        return owner;
     }
 
-    public void setOwners(List<Owner> owners) {
-        this.owners = owners;
+    public void setOwner(Owner owner) {
+        this.owner = owner;
     }
 
     @Override
@@ -54,9 +54,7 @@ public class Cat {
         return "Cat{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", owners=" + (owners == null ? null : String.join(", ", owners.stream()
-                .map(object -> Objects.toString(object, null))
-                .collect(Collectors.toList()))) +
+                ", owner=" + owner +
                 '}';
     }
 }

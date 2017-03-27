@@ -18,35 +18,24 @@ public class QOwner extends EntityPathBase<Owner> {
 
     private static final long serialVersionUID = -2136759689L;
 
-    private static final PathInits INITS = PathInits.DIRECT2;
-
     public static final QOwner owner = new QOwner("owner");
 
-    public final QCat cat;
+    public final ListPath<Cat, QCat> cats = this.<Cat, QCat>createList("cats", Cat.class, QCat.class, PathInits.DIRECT2);
 
     public final NumberPath<Integer> id = createNumber("id", Integer.class);
 
     public final StringPath name = createString("name");
 
     public QOwner(String variable) {
-        this(Owner.class, forVariable(variable), INITS);
+        super(Owner.class, forVariable(variable));
     }
 
     public QOwner(Path<? extends Owner> path) {
-        this(path.getType(), path.getMetadata(), path.getMetadata().isRoot() ? INITS : PathInits.DEFAULT);
+        super(path.getType(), path.getMetadata());
     }
 
     public QOwner(PathMetadata<?> metadata) {
-        this(metadata, metadata.isRoot() ? INITS : PathInits.DEFAULT);
-    }
-
-    public QOwner(PathMetadata<?> metadata, PathInits inits) {
-        this(Owner.class, metadata, inits);
-    }
-
-    public QOwner(Class<? extends Owner> type, PathMetadata<?> metadata, PathInits inits) {
-        super(type, metadata, inits);
-        this.cat = inits.isInitialized("cat") ? new QCat(forProperty("cat")) : null;
+        super(Owner.class, metadata);
     }
 
 }

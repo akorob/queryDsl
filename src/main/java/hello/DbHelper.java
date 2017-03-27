@@ -9,30 +9,44 @@ import java.util.Arrays;
  */
 public class DbHelper {
     public static void createTestDb(EntityManager entityManager){
+
+
         EntityTransaction transaction = entityManager.getTransaction();
         transaction.begin();
 
         Owner john = new Owner("John");
-        Owner ron = new Owner("Ron");
-        Owner bill = new Owner("Bill");
-        Owner monica = new Owner("Monica");
-        Owner martin = new Owner("Martin");
+        Cat kitty = new Cat("Kitty");
+        kitty.setOwner(john);
+        john.getCats().add(kitty);
 
-       /* entityManager.persist(john);
+        Owner ron = new Owner("Ron");
+        Cat tigerJun = new Cat("Tiger");
+        tigerJun.setOwner(ron);
+        ron.getCats().add(tigerJun);
+
+        Owner bill = new Owner("Bill");
+        Cat method = new Cat("Method");
+        Cat tiger = new Cat("Tiger");
+        method.setOwner(bill);
+        tiger.setOwner(bill);
+        bill.getCats().add(method);
+        bill.getCats().add(tiger);
+
+        Owner monica = new Owner("Monica");
+        Cat angel = new Cat("Angel");
+        angel.setOwner(monica);
+        monica.getCats().add(angel);
+
+        Owner martin = new Owner("Martin");
+        Cat loki = new Cat("Loki");
+        loki.setOwner(martin);
+        martin.getCats().add(loki);
+
+        entityManager.persist(john);
         entityManager.persist(ron);
         entityManager.persist(bill);
         entityManager.persist(monica);
-        entityManager.persist(martin);*/
-
-
-        entityManager.persist(new Cat("Method", Arrays.asList(bill)));
-        entityManager.persist(new Cat("Angel", Arrays.asList(monica)));
-        entityManager.persist(new Cat("Tiger", Arrays.asList(bill, monica)));
-
-        entityManager.persist(new Cat("Kitty", Arrays.asList(john)));
-        entityManager.persist(new Cat("Tiger", Arrays.asList(ron)));
-        entityManager.persist(new Cat("Loki", Arrays.asList(martin)));
-        entityManager.persist(new Cat("Loki", Arrays.asList(martin)));
+        entityManager.persist(martin);
 
         entityManager.flush();
         transaction.commit();
