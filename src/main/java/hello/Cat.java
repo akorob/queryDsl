@@ -12,7 +12,10 @@ public class Cat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     private String name;
+
+    private int age;
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="owner")
@@ -21,8 +24,9 @@ public class Cat {
     public Cat() {
     }
 
-    public Cat(String name) {
+    public Cat(String name, int age) {
         this.name = name;
+        this.age = age;
     }
 
     public int getId() {
@@ -41,6 +45,14 @@ public class Cat {
         this.name = name;
     }
 
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
     public Owner getOwner() {
         return owner;
     }
@@ -54,6 +66,7 @@ public class Cat {
         return "Cat{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
+                ", age=" + age +
                 ", owner=" + owner +
                 '}';
     }

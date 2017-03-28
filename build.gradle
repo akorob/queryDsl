@@ -24,12 +24,12 @@ repositories {
 }
 
 dependencies {
-    compile "com.mysema.querydsl:querydsl-jpa:3.6.3"
-    //compile "com.mysema.querydsl:querydsl-apt:3.6.3:jpa"
+    compile "com.mysema.querydsl:querydsl-jpa:3.6.9"
+    //compile "com.mysema.querydsl:querydsl-apt:3.6.9:jpa"
     compile "org.hibernate:hibernate-entitymanager:4.3.5.Final" 
     compile 'com.h2database:h2:1.4.187'
-    compile "org.slf4j:slf4j-simple:1.7.9" // to avoid SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
-    queryDslJpa "com.mysema.querydsl:querydsl-apt:3.6.3"
+    compile "org.slf4j:slf4j-simple:1.7.9"
+    queryDslJpa "com.mysema.querydsl:querydsl-apt:3.6.9"
     hibernateJpa "org.hibernate:hibernate-jpamodelgen:4.3.11.Final"
 }
 
