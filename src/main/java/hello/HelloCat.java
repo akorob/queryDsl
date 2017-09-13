@@ -3,6 +3,7 @@ package hello;
 import com.mysema.query.*;
 import com.mysema.query.group.GroupBy;
 import com.mysema.query.jpa.impl.JPAQuery;
+import com.mysema.query.types.ExpressionUtils;
 import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -10,6 +11,7 @@ import org.hibernate.cfg.Environment;
 
 import javax.persistence.*;
 import javax.persistence.criteria.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +26,7 @@ public class HelloCat {
         DbHelper.createTestDb(em);
 
         simpleLike(em);
+        dinamicConditions(em);
         nestedObjFieldEquals(em);
         orderByName(em);
         orderCatsByOwnerName(em);
@@ -41,6 +44,25 @@ public class HelloCat {
         QCat cat = QCat.cat;
         List<String> catNames = queryFactory.from(cat)
                 .where(cat.name.like("%ge%"))
+                .groupBy(cat.name)
+                .list(cat.name);
+        catNames.forEach(System.out::println);
+    }
+
+    private static void dinamicConditions(EntityManager em) {
+        System.out.println("## multipleConditions");
+        QCat cat = QCat.cat;
+        List<com.mysema.query.types.Predicate> predicates = new ArrayList<>();
+        if (true) {
+            predicates.add(cat.name.like("%ge%"));
+        }
+        if (true) {
+            predicates.add(cat.age.eq(2));
+        }
+        com.mysema.query.types.Predicate where = ExpressionUtils.allOf(predicates);
+        JPAQuery queryFactory = new JPAQuery(em);
+        List<String> catNames = queryFactory.from(cat)
+                .where(where)
                 .groupBy(cat.name)
                 .list(cat.name);
         catNames.forEach(System.out::println);
