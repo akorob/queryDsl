@@ -26,15 +26,21 @@ public class DbHelper {
 
         Owner bill = new Owner("Bill");
         Cat method = new Cat("Method", 3);
+        Cat methodJun = new Cat("Method", 2);
         Cat tiger = new Cat("Tiger", 4);
         method.setOwner(bill);
         tiger.setOwner(bill);
+        methodJun.setOwner(bill);
         bill.getCats().add(method);
+        bill.getCats().add(methodJun);
         bill.getCats().add(tiger);
 
         Owner monica = new Owner("Monica");
         Cat angel = new Cat("Angel", 2);
+        Cat methodGrand = new Cat("Method", 12);
         angel.setOwner(monica);
+        methodGrand.setOwner(monica);
+        monica.getCats().add(methodGrand);
         monica.getCats().add(angel);
 
         Owner martin = new Owner("Martin");

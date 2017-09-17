@@ -2,6 +2,7 @@ package hello;
 
 import com.mysema.query.*;
 import com.mysema.query.group.GroupBy;
+import com.mysema.query.jpa.JPASubQuery;
 import com.mysema.query.jpa.impl.JPAQuery;
 import com.mysema.query.types.ExpressionUtils;
 import org.hibernate.Hibernate;
@@ -33,9 +34,74 @@ public class HelloCat {
         findMaxCatAge(em);
         findMaxAgeByName(em);
         catCountByOwner(em);
+        findOwnerByCatName(em);
+        findOwnerByCatNameDistinct(em);
+        paging(em);
+
 
         em.close();
         emf.close();
+    }
+
+    private static void paging(EntityManager em) {
+        System.out.println("## Cat names like: %ge%");
+        JPAQuery queryFactory = new JPAQuery(em);
+        QCat cat = QCat.cat;
+        List<String> catNames = queryFactory.from(cat)
+                .orderBy(cat.name.asc())
+                .restrict(new QueryModifiers(2L, 2L))
+                .list(cat.name);
+        catNames.forEach(System.out::println);
+    }
+
+    @SuppressWarnings("JpaQlInspection")
+    private static void findOwnerByCatNameDistinct(EntityManager em) {
+        System.out.println("## findOwnerByCatName DISTINCT");
+        JPAQuery queryFactory = new JPAQuery(em);
+        QCat cat = QCat.cat;
+        QOwner owner = QOwner.owner;
+
+        List<Owner> ownersDistinct = queryFactory
+                .distinct()
+                .from(owner)
+                .innerJoin(owner.cats, cat)
+                .where(cat.name.eq("Method"))
+                .list(owner);
+        ownersDistinct.forEach(System.out::println);
+
+
+        System.out.println("## findOwnerByCatName(JPQL with DISTINCT)");
+        TypedQuery<Owner> queryJpqlDupl = em.createQuery(
+                "SELECT DISTINCT o FROM Owner o JOIN o.cats c WHERE c.name=:catName", Owner.class);
+        queryJpqlDupl.setParameter("catName", "Method");
+        List<Owner> ownersJpqlDupl = queryJpqlDupl.getResultList();
+        ownersJpqlDupl.forEach(System.out::println);
+
+    }
+
+
+    @SuppressWarnings("JpaQlInspection")
+    private static void findOwnerByCatName(EntityManager em) {
+        System.out.println("## findOwnerByCatName");
+        JPAQuery queryFactory = new JPAQuery(em);
+        QCat cat = QCat.cat;
+        QOwner owner = QOwner.owner;
+        com.mysema.query.types.Predicate catNamePredicate = new JPASubQuery()
+                .from(cat).where(cat.owner.eq(owner).and(cat.name.eq("Method"))).exists();
+        List<Owner> owners = queryFactory
+                .from(owner)
+                .where(catNamePredicate)
+                .list(owner);
+        owners.forEach(System.out::println);
+
+
+        System.out.println("## findOwnerByCatName(JPQL)");
+        TypedQuery<Owner> queryJpql = em.createQuery(
+                "SELECT o FROM Owner o WHERE EXISTS (SELECT 1 FROM Cat c WHERE o.id=c.owner AND c.name=:catName)", Owner.class);
+        queryJpql.setParameter("catName", "Method");
+        List<Owner> ownersJpql = queryJpql.getResultList();
+        ownersJpql.forEach(System.out::println);
+
     }
 
     private static void simpleLike(EntityManager em) {
@@ -48,6 +114,7 @@ public class HelloCat {
                 .list(cat.name);
         catNames.forEach(System.out::println);
     }
+
 
     private static void dinamicConditions(EntityManager em) {
         System.out.println("## multipleConditions");
@@ -63,10 +130,12 @@ public class HelloCat {
         JPAQuery queryFactory = new JPAQuery(em);
         List<String> catNames = queryFactory.from(cat)
                 .where(where)
-                .groupBy(cat.name)
+                .restrict(new QueryModifiers(10L, 1L))
+                .orderBy(cat.name.asc(), cat.id.asc())
                 .list(cat.name);
         catNames.forEach(System.out::println);
     }
+
 
     @SuppressWarnings("JpaQlInspection")
     private static void nestedObjFieldEquals(EntityManager em) {
